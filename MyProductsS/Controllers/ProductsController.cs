@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyProductsS.Data;
@@ -11,17 +12,29 @@ namespace MyProductsS.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ProductsController(AppDbContext context)
+        public ProductsController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
+
+        // GET: api/Products
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        //{
+        //    var a= await _context.Products.ToListAsync();
+
+        //}
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Productmap>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            var products = await _context.Products.ToListAsync();
+            var productMaps = _mapper.Map<IEnumerable<Productmap>>(products);
+            return Ok(productMaps);
         }
 
         // GET: api/Products/5
@@ -29,13 +42,14 @@ namespace MyProductsS.Controllers
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
+            var productMaps = _mapper.Map<Productmap>(product);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            return product;
+            return Ok(productMaps);
         }
 
         // POST: api/Products
